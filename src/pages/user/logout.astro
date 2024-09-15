@@ -1,0 +1,10 @@
+---
+import { routes } from "../../utils/constants";
+
+Astro.cookies.delete("user");
+Astro.cookies.delete("jwt");
+console.log("logout");
+
+// Redirect to home page
+Astro.redirect(routes.HOME);
+---

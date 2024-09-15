@@ -8,4 +8,6 @@ export const routes = {
   PRODUCTS: "/products",
   CART: "/user/cart",
   SIGNUP: "/signup",
+  LOGIN: "/login",
+  LOGOUT: "/user/logout",
 };
