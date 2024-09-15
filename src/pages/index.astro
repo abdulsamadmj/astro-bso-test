@@ -1,9 +1,14 @@
 ---
+import Card from "../components/Card.astro";
 import Layout from "../layouts/Layout.astro";
+import { routes } from "../utils/constants";
 ---
 
 <Layout title="Home Page" navbar>
-  <main>Hi</main>
+  <main class="p-5 grid grid-cols-2 gap-2">
+    <Card class:list={"w-fit h-fit"} body="Browse shop" href={routes.PRODUCTS} title="Products"/>
+    <Card class:list={"w-fit h-fit"} body="Manage your cart" href={routes.CART} title="Cart"/>
+  </main>
 </Layout>
 
 <style></style>
