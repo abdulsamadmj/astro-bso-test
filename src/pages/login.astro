@@ -1,6 +1,52 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { routes } from "../utils/constants";
+import { strapi } from "../utils/constants";
+
+const errors = { username: "", password: "", general: "" };
+let successMessage = "";
+
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    const identifier = data.get("username"); // Identifier could be username or email
+    const password = data.get("password");
+
+    // Validation
+    if (typeof identifier !== "string" || identifier.length < 1) {
+      errors.username = "Please enter your username or email.";
+    }
+    if (typeof password !== "string" || password.length < 8) {
+      errors.password = "Password must be at least 8 characters.";
+    }
+
+    const hasErrors = Object.values(errors).some((msg) => msg);
+
+    if (!hasErrors) {
+      // Call the Strapi API for user authentication
+      const response = await fetch(strapi.LOGIN_URL, {
+        method: "POST",
+        body: JSON.stringify({ identifier, password }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        successMessage = "Login successful! Redirecting...";
+        Astro.cookies.set("jwt", result.jwt); // Store JWT in cookies
+        Astro.cookies.set("user", result.user); // Store user details
+        return Astro.redirect("/"); // Redirect after successful login
+      } else {
+        errors.general = result.message || "Invalid username or password.";
+      }
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+    errors.general = "An unexpected error occurred. Please try again.";
+  }
+}
 ---
 
 <Layout title="Login">
@@ -16,7 +62,7 @@ import { routes } from "../utils/constants";
         >
           Login to your account
         </h1>
-        <form class="space-y-4 md:space-y-6" action="#">
+        <form class="space-y-4 md:space-y-6" method="post">
           <div>
             <label
               for="username"
@@ -29,8 +75,9 @@ import { routes } from "../utils/constants";
               id="username"
               class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="name@company.com"
-              required=""
+              required
             />
+            {errors.username && <p class="text-red-600">{errors.username}</p>}
           </div>
           <div>
             <label
@@ -44,17 +91,20 @@ import { routes } from "../utils/constants";
               id="password"
               placeholder="password"
               class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              required=""
+              required
             />
+            {errors.password && <p class="text-red-600">{errors.password}</p>}
           </div>
           <button
             type="submit"
             class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
             >Login</button
           >
+          {successMessage && <p class="text-green-600">{successMessage}</p>}
+          {errors.general && <p class="text-red-600">{errors.general}</p>}
           <p class="text-sm font-light text-gray-500 dark:text-gray-400">
             Don&apos;t have an account yet? <a
-              href={routes.SIGNUP}
+              href="/signup"
               class="font-medium text-primary-600 hover:underline dark:text-primary-500"
               >Sign up</a
             >
