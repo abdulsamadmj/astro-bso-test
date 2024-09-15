@@ -1,0 +1,162 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { strapi } from "../utils/constants";
+
+const errors = { username: "", email: "", password: "", general: "" };
+let successMessage = "";
+
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    const email = data.get("email");
+    const username = data.get("username");
+    const password = data.get("password");
+    const confirmPassword = data.get("confirm-password");
+
+    if (typeof username !== "string" || username.length < 1) {
+      errors.username = "Please enter a username.";
+    }
+    if (typeof email !== "string" || !email.includes("@")) {
+      errors.email = "Email is not valid.";
+    }
+    if (typeof password !== "string" || password.length < 8) {
+      errors.password = "Password must be at least 8 characters.";
+    } else if (password !== confirmPassword) {
+      errors.password = "Passwords don't match.";
+    }
+
+    const hasErrors = Object.values(errors).some((msg) => msg);
+
+    if (!hasErrors) {
+      // Call your API route for user registration
+      const response = await fetch(strapi.SIGNUP_URL, {
+        method: "POST",
+        body: JSON.stringify({ email, username, password }),
+        headers: { "Content-Type": "application/json" },
+      }).then((res) => res.json());
+
+      console.log(response);
+
+      if (response.ok) {
+        successMessage = "Account created successfully! Redirecting...";
+        // Handle redirection or other actions
+        sessionStorage.setItem("jwt", response.data.jwt); // Store JWT in sessionStorage
+        sessionStorage.setItem("user", JSON.stringify(response.data.user)); // Store user details
+        window.location.href = "/"; // Redirect to index
+      } else {
+        const result = await response.json();
+        errors.general = result.message || "An unexpected error occurred.";
+      }
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+    errors.general = "An unexpected error occurred. Please try again.";
+  }
+}
+---
+
+<Layout title="Sign Up">
+  <section class="bg-gray-50 dark:bg-gray-900">
+    <div
+      class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0"
+    >
+      <div
+        class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"
+      >
+        <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+          <h1
+            class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white"
+          >
+            Create an account
+          </h1>
+          <!-- Form -->
+          <form method="POST" class="space-y-4 md:space-y-6">
+            <div>
+              <label
+                for="email"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Your email</label
+              >
+              <input
+                autocomplete="off"
+                type="email"
+                name="email"
+                id="email"
+                required
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              />
+              {errors.email && <p class="text-red-600">{errors.email}</p>}
+            </div>
+            <div>
+              <label
+                for="username"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Username</label
+              >
+              <input
+                autocomplete="off"
+                type="text"
+                name="username"
+                id="username"
+                required
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              />
+              {errors.username && <p class="text-red-600">{errors.username}</p>}
+            </div>
+            <div>
+              <label
+                for="password"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Password</label
+              >
+              <input
+                autocomplete="off"
+                type="password"
+                name="password"
+                id="password"
+                required
+                minlength="8"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              />
+              {errors.password && <p class="text-red-600">{errors.password}</p>}
+            </div>
+            <div>
+              <label
+                for="confirm-password"
+                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >Confirm password</label
+              >
+              <input
+                autocomplete="off"
+                type="password"
+                name="confirm-password"
+                id="confirm-password"
+                required
+                minlength="8"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+            >
+              Create an account
+            </button>
+            {successMessage && <p class="text-green-600">{successMessage}</p>}
+            {errors.general && <p class="text-red-600">{errors.general}</p>}
+            <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+              Already have an account?
+              <a
+                href="/login"
+                class="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                >Login here</a
+              >
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
