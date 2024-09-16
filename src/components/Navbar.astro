@@ -1,5 +1,5 @@
 ---
-import { routes } from "../utils/constants";
+import { routes, strapi } from "../utils/constants";
 
 // Fetch the user from cookies (replace with your actual cookie management method)
 const user: {
@@ -10,7 +10,34 @@ const user: {
     blocked: boolean,
     createdAt: string,
     updatedAt: string
-  } = Astro.cookies.get("user")?.json() ?? null
+} = Astro.cookies.get("user")?.json() ?? null;
+
+// Fetch cart count if user is logged in
+let cartCount = 0;
+let fetchError = false;
+
+if (user) {
+    const token = Astro.cookies.get("jwt")?.value;
+    if (token) {
+        try {
+            const response = await fetch(strapi.BASE_URL + `/api/users/me?populate=cart`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const userData = await response.json();
+            cartCount = userData?.cart?.length || 0;
+        } catch (error) {
+            console.error("Failed to fetch cart count:", error);
+            fetchError = true;
+        }
+    }
+}
 ---
 
 <nav class="bg-white border-gray-200 dark:bg-gray-900">
@@ -42,7 +69,19 @@ const user: {
             </div>
             <ul class="py-2" aria-labelledby="user-menu-button">
               <li>
-                <a href={routes.CART} class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Cart</a>
+                <a href={routes.CART} class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+                  Cart
+                  {cartCount > 0 && !fetchError && (
+                    <span class="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 rounded-full">
+                      {cartCount}
+                    </span>
+                  )}
+                  {fetchError && (
+                    <span class="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-red-500 bg-white rounded-full">
+                      !
+                    </span>
+                  )}
+                </a>
               </li>
               <li>
                 <a href={routes.LOGOUT} class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Log out</a>

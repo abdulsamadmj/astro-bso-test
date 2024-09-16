@@ -41,7 +41,7 @@ const { title, navbar } = Astro.props;
       rel="stylesheet"
     />
   </head>
-  <body>
+  <body class="h-screen flex flex-col">
     {navbar && <Navbar />}
     <section class="bg-gray-50 dark:bg-gray-900 h-full">
       <slot />
