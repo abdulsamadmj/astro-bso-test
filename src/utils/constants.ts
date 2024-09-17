@@ -9,5 +9,5 @@ export const routes = {
   CART: "/user/cart",
   SIGNUP: "/signup",
   LOGIN: "/login",
-  LOGOUT: "/user/logout",
+  LOGOUT: "/logout",
 };

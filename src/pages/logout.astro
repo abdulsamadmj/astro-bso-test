@@ -1,0 +1,10 @@
+---
+import Card from "../components/Card.astro";
+import Layout from "../layouts/Layout.astro";
+import { routes } from "../utils/constants";
+
+Astro.cookies.delete("user");
+    Astro.cookies.delete("jwt");
+
+return Astro.redirect("/")
+---

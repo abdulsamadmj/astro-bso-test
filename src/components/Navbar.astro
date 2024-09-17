@@ -2,23 +2,15 @@
 import { routes, strapi } from "../utils/constants";
 
 // Fetch the user from cookies (replace with your actual cookie management method)
-const user: {
-    id: string,
-    username: string,
-    email: string,
-    confirmed: boolean,
-    blocked: boolean,
-    createdAt: string,
-    updatedAt: string
-} = Astro.cookies.get("user")?.json() ?? null;
-
+const user = Astro.cookies.get("user") ?? null;
+const userObject = user?.json()
 // Fetch cart count if user is logged in
 let cartCount = 0;
 let fetchError = false;
 
-if (user) {
+if (user && user?.value !== "null") {
     const token = Astro.cookies.get("jwt")?.value;
-    if (token) {
+    if (token && token !== "null") {
         try {
             const response = await fetch(strapi.BASE_URL + `/api/users/me?populate=cart`, {
                 headers: {
@@ -46,7 +38,7 @@ if (user) {
       <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Home Page</span>
     </a>
     <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-      {user ? (
+      {userObject ? (
         <>
           <button
             type="button"
@@ -58,14 +50,14 @@ if (user) {
           >
             <span class="sr-only">Open user menu</span>
             <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-              {user.username}
+              {userObject.username}
             </div>
           </button>
           <!-- Dropdown menu -->
           <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
             <div class="px-4 py-3">
-              <span class="block text-sm text-gray-900 dark:text-white">{user.username}</span>
-              <span class="block text-sm text-gray-500 truncate dark:text-gray-400">{user.email}</span>
+              <span class="block text-sm text-gray-900 dark:text-white">{userObject.username}</span>
+              <span class="block text-sm text-gray-500 truncate dark:text-gray-400">{userObject.email}</span>
             </div>
             <ul class="py-2" aria-labelledby="user-menu-button">
               <li>
