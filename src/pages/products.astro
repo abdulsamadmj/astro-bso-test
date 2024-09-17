@@ -15,7 +15,7 @@ try {
   // Check if any products are returned
   products = res.data.map((item: any) => {
     return {
-    id: item.id,
+    pID: item.attributes.pID,
     title: item.attributes.title,
     image: strapi.BASE_URL + item.attributes.image.data[0].attributes.url ?? "https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg",  // Fallback in case image is missing
     price: item.attributes.price
