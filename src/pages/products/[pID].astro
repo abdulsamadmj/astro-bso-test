@@ -42,7 +42,7 @@ try {
         ) : (
             <div class="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
                 <div class="shrink-0 max-w-md lg:max-w-lg mx-auto">
-                    <img class="w-full max-h-96 dark:hidden" src={product?.image || "fallback-image.jpg"}
+                    <img class="w-full max-h-72 dark:hidden object-contain" src={product?.image || "fallback-image.jpg"}
                         alt={product?.title || "Product image"} />
                 </div>
 

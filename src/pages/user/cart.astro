@@ -22,7 +22,7 @@ import { routes, strapi } from "../../utils/constants";
     if (!userCartResponse.ok) throw new Error('Failed to fetch cart');
 
     const userCartData = await userCartResponse.json();
-    products = userCartData.cart[0].products.map((product: any) => ({
+    products = userCartData.cart.products.map((product: any) => ({
       id: product.id,
       title: product.title,
       image: strapi.BASE_URL + product.image[0].url ?? "https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg",  // Fallback in case image is missing
@@ -46,7 +46,7 @@ import { routes, strapi } from "../../utils/constants";
 ---
 
 <Layout title="Cart" navbar>
-  <div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
+  <div class="mx-auto max-w-screen-xl px-4 2xl:px-0 py-5">
     <h2 class="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
       Shopping Cart
     </h2>

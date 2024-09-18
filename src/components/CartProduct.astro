@@ -16,13 +16,13 @@ const { id, title, image, price } = Astro.props
             <img class="h-20 w-20 dark:hidden object-contain" src={image}
                 alt={title} />
         </a>
-        <div class="flex items-center justify-between md:order-3 md:justify-end">
-            <div class="text-end md:order-4 md:w-32">
+        <div class="flex items-center justify-between md:order-3 md:justify-end gap-5">
+            <div class="text-end md:w-32">
                 <p class="text-base font-bold text-gray-900 dark:text-white">
                     ${price}
                 </p>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4 md:order-4">
                 <button type="button"
                     class="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500">
                     <svg class="me-1.5 h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"

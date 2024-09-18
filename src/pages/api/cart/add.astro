@@ -1,0 +1,37 @@
+---
+import { strapi } from "../../../utils/constants";
+
+if (Astro.request.method === "POST") {
+  try {
+    const body = await Astro.request.json();
+    const { pID } = body;
+    const userToken = Astro.cookies.get("jwt")?.value;
+
+    // Make a request to the Strapi API to add the product to the cart
+    const strapiRes = await fetch(strapi.BASE_URL + "/api/users/me/cart", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: JSON.stringify({ pID }),
+    });
+
+    if (!strapiRes.ok) {
+      return new Response(
+        JSON.stringify({ error: "Failed to add product to cart" }),
+        { status: 400 }
+      );
+    }
+
+    const data = await strapiRes.json();
+    return new Response(JSON.stringify(data), { status: 200 });
+  } catch (error) {
+    console.error("Error adding product to cart:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+    });
+  }
+};
+
+---

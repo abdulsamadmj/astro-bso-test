@@ -23,7 +23,7 @@ if (user && user?.value !== "null") {
             }
 
             const userData = await response.json();
-            cartCount = userData?.cart[0].products?.length || 0;
+            cartCount = userData?.cart.products?.length || 0;
         } catch (error) {
             console.error("Failed to fetch cart count:", error);
             fetchError = true;
@@ -51,8 +51,8 @@ const path = Astro.url.pathname
             data-dropdown-placement="bottom"
           >
             <span class="sr-only">Open user menu</span>
-            <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-              {userObject.username}
+            <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold uppercase">
+              {userObject.username.charAt(0)}
             </div>
           </button>
           <!-- Dropdown menu -->
