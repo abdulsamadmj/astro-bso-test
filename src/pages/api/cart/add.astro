@@ -1,7 +1,7 @@
 ---
 import { strapi } from "../../../utils/constants";
 
-if (Astro.request.method === "POST") {
+if (Astro.request.method === "PUT") {
   try {
     const body = await Astro.request.json();
     const { pID } = body;
@@ -9,7 +9,7 @@ if (Astro.request.method === "POST") {
 
     // Make a request to the Strapi API to add the product to the cart
     const strapiRes = await fetch(strapi.BASE_URL + "/api/users/me/cart", {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${userToken}`,

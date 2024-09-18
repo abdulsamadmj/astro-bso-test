@@ -23,7 +23,7 @@ import { routes, strapi } from "../../utils/constants";
 
     const userCartData = await userCartResponse.json();
     products = userCartData.cart.products.map((product: any) => ({
-      id: product.id,
+      pID: product.pID,
       title: product.title,
       image: strapi.BASE_URL + product.image[0].url ?? "https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg",  // Fallback in case image is missing
       price: product.price
@@ -51,7 +51,7 @@ import { routes, strapi } from "../../utils/constants";
       Shopping Cart
     </h2>
 
-    <div class="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
+    <div class="mt-5 md:gap-6 lg:flex lg:items-start xl:gap-8">
       <div class="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl">
         <div class="space-y-6">
           {isEmpty ? (

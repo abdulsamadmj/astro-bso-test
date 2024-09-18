@@ -1,0 +1,43 @@
+---
+import { strapi } from "../../../utils/constants";
+
+if (Astro.request.method === "DELETE") {
+  try {
+    const url = new URL(Astro.request.url);
+    const pID = url.searchParams.get("pID"); // Get pID from query string
+    const userToken = Astro.cookies.get("jwt")?.value;
+
+    if (!pID) {
+      return new Response(JSON.stringify({ error: "Product ID is required" }), {
+        status: 400,
+      });
+    }
+
+    // Make a request to the Strapi API to remove the product from the cart
+    const strapiRes = await fetch(
+      `${strapi.BASE_URL}/api/users/me/cart?pID=${pID}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+
+    if (!strapiRes.ok) {
+      return new Response(
+        JSON.stringify({ error: "Failed to remove product from cart" }),
+        { status: 400 }
+      );
+    }
+
+    const data = await strapiRes.json();
+    return new Response(JSON.stringify(data), { status: 200 });
+  } catch (error) {
+    console.error("Error removing product from cart:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+    });
+  }
+};
+---
