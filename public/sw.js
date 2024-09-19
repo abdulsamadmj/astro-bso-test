@@ -1,14 +1,12 @@
 const CACHE_NAME = "astro-cache-v1";
 const urlsToCache = [
-  "/", // The root page of your application
-  "/products",
-  "/user/cart",
+  "/", // Cache root page
   "/manifest.json", // Cache the manifest
-  "/icons/icon-192x192.png",
-  "/icons/icon-512x512.png",
+  "/icons/icon-192x192.png", // Cache icon
+  "/icons/icon-512x512.png", // Cache larger icon
 ];
 
-// Install the service worker and cache the specified URLs
+// Install event: caching necessary assets
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -17,7 +15,7 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Handle fetch events, cache GET requests, and update the cache if necessary
+// Fetch event: serve from cache, and update the cache if necessary
 self.addEventListener("fetch", (event) => {
   if (event.request.method === "POST") {
     event.respondWith(fetch(event.request));
@@ -26,22 +24,34 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (event.request.method === "GET") {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
-          });
-        }
-        return networkResponse;
-      });
+      // If cached response is found, return it immediately
+      if (cachedResponse) {
+        return cachedResponse;
+      }
 
-      // Serve from the cache if available, otherwise fetch from the network
-      return cachedResponse || fetchPromise;
+      // Otherwise, fetch the resource from the network
+      return fetch(event.request)
+        .then((networkResponse) => {
+          // Clone the network response before using it, so it can be put into cache
+          const clonedResponse = networkResponse.clone();
+
+          // Cache the cloned response
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clonedResponse);
+          });
+
+          // Return the original network response to be used by the page
+          return networkResponse;
+        })
+        .catch((error) => {
+          console.error("Fetching failed:", error);
+          throw error;
+        });
     })
   );
 });
 
-// Activate and clean up old caches when a new ServiceWorker is activated
+// Activate event: cleanup old caches
 self.addEventListener("activate", (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
