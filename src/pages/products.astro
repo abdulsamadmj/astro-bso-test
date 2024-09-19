@@ -76,7 +76,6 @@ try {
           price: product.price,
           image: product.image ?? productImage,
         });
-        console.log("created", uiProducts);
         break;
       case "product:update":
         if (product.publishedAt) {
@@ -94,11 +93,9 @@ try {
         } else {
           removeProduct(product.pID);
         }
-        console.log("updated", uiProducts);
         break;
       case "product:delete":
         removeProduct(product.pID);
-        console.log("deleted", uiProducts);
         break;
     }
   };
@@ -132,7 +129,7 @@ try {
     <a
       href="${productsRoute + "/" + pID}"
       class="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white"
-      ><p class="truncate">${title}</p></a
+      ><p class="w-[75vw] sm:w-full truncate">${title}</p></a
     >
 
     <ul class="mt-2 flex items-center gap-4">
