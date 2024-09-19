@@ -11,3 +11,8 @@ export const routes = {
   LOGIN: "/login",
   LOGOUT: "/logout",
 };
+
+export const placeholders = {
+  PRODUCT_IMAGE:
+    "https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg",
+};
