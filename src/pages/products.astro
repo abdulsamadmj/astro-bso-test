@@ -64,7 +64,10 @@ try {
   </div>
 </Layout>
 
-<script define:vars={{ products, imagePlaceholder, productsRoute, strapiUrl }}>
+<script
+  is:inline
+  define:vars={{ products, imagePlaceholder, productsRoute, strapiUrl }}
+>
   // SSE connection
   const evtSource = new EventSource("/api/stream");
 
