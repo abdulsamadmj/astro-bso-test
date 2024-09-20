@@ -8,7 +8,9 @@ export async function GET() {
   const stream = new ReadableStream({
     start(controller) {
       eventsListener = (data: any) => {
-        console.log(`stream.js> Emitter event = ${JSON.stringify(data)}`);
+        console.log(
+          `stream.js> Emitter event = ${data.event}, id = ${data.data.data.attributes.pID}`
+        );
         const eventData = `data: ${JSON.stringify(data)}\r\n\r\n`;
         controller.enqueue(eventData);
       };
