@@ -23,7 +23,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    caches.match(event.request).then(async (cachedResponse) => {
       const fetchRequest = event.request.clone();
 
       // Fetch the resource from the network
