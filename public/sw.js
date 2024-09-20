@@ -17,7 +17,7 @@ self.addEventListener("install", (event) => {
 
 // Fetch event: serve from cache, and update the cache if necessary
 self.addEventListener("fetch", (event) => {
-  if (event.request.method === "POST") {
+  if (event.request.method !== "GET") {
     event.respondWith(fetch(event.request));
     return;
   }
