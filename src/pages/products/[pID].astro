@@ -27,7 +27,7 @@ try {
       pID: data.pID,
       title: data.title,
       price: data.price,
-      image: image ?? placeholders.PRODUCT_IMAGE,
+      image: image ? strapi.BASE_URL + image : placeholders.PRODUCT_IMAGE,
     };
   } else {
     error = "Product doesn't exist";

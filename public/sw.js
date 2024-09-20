@@ -1,9 +1,9 @@
 const CACHE_NAME = "astro-cache-v1";
 const urlsToCache = [
-  "/", // Cache root page
-  "/manifest.json", // Cache the manifest
-  "/icons/icon-192x192.png", // Cache icon
-  "/icons/icon-512x512.png", // Cache larger icon
+  "/",
+  "/manifest.json",
+  "/icons/icon-192x192.png",
+  "/icons/icon-512x512.png",
 ];
 
 // Install event: caching necessary assets
@@ -15,7 +15,7 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Fetch event: serve from cache, and update the cache if necessary
+// Fetch event: serve from cache, check for changes, and update cache if necessary
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
     event.respondWith(fetch(event.request));
@@ -24,28 +24,36 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      // If cached response is found, return it immediately
-      if (cachedResponse) {
-        return cachedResponse;
-      }
+      const fetchRequest = event.request.clone();
 
-      // Otherwise, fetch the resource from the network
-      return fetch(event.request)
+      // Fetch the resource from the network
+      return fetch(fetchRequest)
         .then((networkResponse) => {
-          // Clone the network response before using it, so it can be put into cache
-          const clonedResponse = networkResponse.clone();
+          // If the server returns 304, use the cached version
+          if (networkResponse.status === 304 && cachedResponse) {
+            return cachedResponse;
+          }
 
-          // Cache the cloned response
+          // Otherwise, clone the network response and update the cache
+          const clonedResponse = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, clonedResponse);
           });
 
-          // Return the original network response to be used by the page
+          // Return the network response
           return networkResponse;
         })
-        .catch((error) => {
-          console.error("Fetching failed:", error);
-          throw error;
+        .catch(() => {
+          // If fetch fails (e.g., offline), return cached response if available
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+
+          // Optionally, handle a case where neither fetch nor cache works
+          return new Response("Resource not available in cache or network", {
+            status: 404,
+            statusText: "Not Found",
+          });
         });
     })
   );
