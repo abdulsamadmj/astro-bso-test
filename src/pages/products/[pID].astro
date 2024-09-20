@@ -13,6 +13,7 @@ let error: string | null = null;
 
 try {
   // Fetch product details from your API
+  // TODO: migrate API and create dedicated API endpoint in STRAPI
   const response = await fetch(
     strapi.BASE_URL + "/api/products/?filters[pID][$eq]=" + pID + "&populate=*",
     {
@@ -27,7 +28,7 @@ try {
       pID: data.pID,
       title: data.title,
       price: data.price,
-      image: image ? strapi.BASE_URL + image : placeholders.PRODUCT_IMAGE,
+      image: image ? strapi.BASE_URL + image : null,
     };
   } else {
     error = "Product doesn't exist";
@@ -49,18 +50,18 @@ try {
           <div class="shrink-0 max-w-md lg:max-w-lg mx-auto">
             <img
               class="w-full max-h-72 dark:hidden object-contain"
-              src={product?.image || "fallback-image.jpg"}
-              alt={product?.title || "Product image"}
+              src={product?.image ?? placeholders.PRODUCT_IMAGE}
+              alt={product?.title ?? "Product image"}
             />
           </div>
 
           <div class="mt-6 sm:mt-8 lg:mt-0">
             <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-              {product?.title || "Product Title"}
+              {product?.title ?? "Product Title"}
             </h1>
             <div class="mt-4 sm:items-center sm:gap-4 sm:flex">
               <p class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white">
-                ${product?.price || "N/A"}
+                ${product?.price ?? "N/A"}
               </p>
             </div>
 

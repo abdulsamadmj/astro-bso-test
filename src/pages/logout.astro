@@ -1,6 +1,7 @@
 ---
+// removing jwt token and user details from cookies
 Astro.cookies.delete("user");
 Astro.cookies.delete("jwt");
 
-return Astro.redirect("/")
+return Astro.redirect("/");
 ---

@@ -1,17 +1,18 @@
 ---
 import { routes, strapi } from "../utils/constants";
 
-// Fetch the user from cookies (replace with your actual cookie management method)
+// Fetch the user from cookies
 const user = Astro.cookies.get("user") ?? null;
 const userObject = user?.json()
 // Fetch cart count if user is logged in
 let cartCount = 0;
 let fetchError = false;
 
-if (user && user?.value !== "null") {
+if (user && user?.value) {
     const token = Astro.cookies.get("jwt")?.value;
-    if (token && token !== "null") {
+    if (token) {
         try {
+            // TODO: migrate api, create custom API for cart count in strapi
             const response = await fetch(strapi.BASE_URL + `/api/users/me?populate[cart][populate]=products`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -78,7 +79,7 @@ const path = Astro.url.pathname
                 </a>
               </li>
               <li>
-                <a href={routes.LOGOUT} class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Log out</a>
+                <a href={routes.LOGOUT} class="block px-4 py-2 text-sm text-red-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Log out</a>
               </li>
             </ul>
           </div>
@@ -102,4 +103,5 @@ const path = Astro.url.pathname
     </div>
   </div>
 </nav>
+<!-- flowbite script (required for dropdown menu) -->
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>

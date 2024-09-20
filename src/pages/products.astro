@@ -5,12 +5,15 @@ import Product from "../components/Product.astro";
 
 let products: any[] = [];
 let fetchError = null;
-const productImage = placeholders.PRODUCT_IMAGE;
+
+// values are taken to constants for passing to client side javascript
+const imagePlaceholder = placeholders.PRODUCT_IMAGE;
 const productsRoute = routes.PRODUCTS;
 const strapiUrl = strapi.BASE_URL;
 
 try {
   // Fetch products from Strapi API
+  // TODO: Migrate API
   const response = await fetch(strapiUrl + "/api/products?populate=*", {
     method: "get",
   });
@@ -23,7 +26,7 @@ try {
       return {
         pID: item.attributes.pID,
         title: item.attributes.title,
-        image: image ? strapiUrl + image : productImage, // Fallback in case image is missing
+        image: image ? strapiUrl + image : imagePlaceholder,
         price: item.attributes.price,
       };
     });
@@ -61,10 +64,11 @@ try {
   </div>
 </Layout>
 
-<script define:vars={{ products, productImage, productsRoute, strapiUrl }}>
+<script define:vars={{ products, imagePlaceholder, productsRoute, strapiUrl }}>
   // SSE connection
   const evtSource = new EventSource("/api/stream");
 
+  // SSE message
   evtSource.onmessage = async (event) => {
     const data = JSON.parse(event.data);
     const product = data.data.data.attributes;
@@ -101,7 +105,9 @@ try {
     evtSource.close();
   };
 
+  // create new product card
   async function createProduct(pID) {
+    // TODO: migrate API
     const response = await fetch(
       strapiUrl + "/api/products/?filters[pID][$eq]=" + pID + "&populate=*",
       {
@@ -110,8 +116,11 @@ try {
     );
     const res = await response.json();
     const fullProduct = res.data[0].attributes;
-    const image = fullProduct.image?.data?.[0]?.attributes?.url ?? productImage;
+    const image =
+      fullProduct.image?.data?.[0]?.attributes?.url ?? imagePlaceholder;
     const newDiv = document.createElement("div");
+
+    // TODO: instead of keeping the component in string try cloning a template or find an alternate way to minmize js usage.
     newDiv.innerHTML = `<div
   id="${pID}"
   class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
@@ -214,7 +223,7 @@ try {
 </div>`;
 
     const currentDiv = document.getElementById("productListContainer");
-    currentDiv.appendChild(newDiv);
+    currentDiv.appendChild(newDiv); // include the new element as the next child of parent container
   }
   function removeProduct(pID) {
     document.getElementById(pID)?.remove();

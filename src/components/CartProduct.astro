@@ -1,66 +1,101 @@
 ---
+import { routes } from "../utils/constants";
+
 interface Props {
-    pID: string;
-    title: string;
-    image: string;
-    price: number;
+  pID: string;
+  title: string;
+  image: string;
+  price: number;
 }
 
-const { pID, title, image, price } = Astro.props
+const { pID, title, image, price } = Astro.props;
 const token = Astro.cookies.get("jwt");
 ---
 
-<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:p-6">
-    <div class="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
-        <a href="#" class="shrink-0 md:order-1">
-            <img class="h-20 w-20 dark:hidden object-contain" src={image}
-                alt={title} />
-        </a>
-        <div class="flex items-center justify-between md:order-3 md:justify-end gap-5">
-            <div class="text-end md:w-32">
-                <p class="text-base font-bold text-gray-900 dark:text-white">
-                    ${price}
-                </p>
-            </div>
-            <div class="flex items-center gap-4 md:order-4">
-                <button type="button" id={"removeFromCart" + pID}
-                    class="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500">
-                    <svg class="me-1.5 h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                        height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18 17.94 6M18 18 6.06 6"></path>
-                    </svg>
-                    Remove
-                </button>
-            </div>
-        </div>
-        <div class="w-full min-w-0 flex-1 space-y-4 md:order-2 md:max-w-md">
-            <p class="text-base font-medium text-gray-900 hover:underline dark:text-white">
-                {title}</p>
-        </div>
+<div
+  id={"cartProduct" + pID}
+  class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 md:p-6"
+>
+  <div
+    class="space-y-4 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0"
+  >
+    <a href={routes.PRODUCTS + "/" + pID} class="shrink-0 md:order-1">
+      <img
+        class="h-20 w-20 dark:hidden object-contain"
+        src={image}
+        alt={title}
+      />
+    </a>
+    <div
+      class="flex items-center justify-between md:order-3 md:justify-end gap-5"
+    >
+      <div class="text-end md:w-32">
+        <p class="text-base font-bold text-gray-900 dark:text-white">
+          ${price}
+        </p>
+      </div>
+      <div class="flex items-center gap-4 md:order-4">
+        <button
+          type="button"
+          id={"removeFromCart" + pID}
+          class="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500"
+        >
+          <svg
+            class="me-1.5 h-5 w-5"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18 17.94 6M18 18 6.06 6"></path>
+          </svg>
+          Remove
+        </button>
+      </div>
     </div>
+    <div class="w-full min-w-0 flex-1 space-y-4 md:order-2 md:max-w-md">
+      <a
+        href={routes.PRODUCTS + "/" + pID}
+        class="text-base font-medium text-gray-900 hover:underline dark:text-white"
+      >
+        {title}
+      </a>
+    </div>
+  </div>
 </div>
 
 <script define:vars={{ pID, token }}>
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("removeFromCart" + pID)?.addEventListener("click", async () => {
-            if (token) {
-                try {
-                    const response = await fetch("/api/cart/remove?pID=" + pID, {
-                        method: "DELETE",
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error("Failed to remove product from cart");
-                    } else {
-                        window.location.reload()
-                    }
-                } catch (error) {
-                    console.error("Error removing product from cart:", error);
-                }
+  document.addEventListener("DOMContentLoaded", () => {
+    // remove button
+    document
+      .getElementById("removeFromCart" + pID)
+      ?.addEventListener("click", async () => {
+        if (token) {
+          try {
+            const response = await fetch("/api/cart/remove?pID=" + pID, {
+              method: "DELETE",
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to remove product from cart");
             } else {
-                document.location.replace("/login");
+              // remove the product card from cart list
+              document.getElementById("cartProduct" + pID)?.remove();
             }
-        });
-    });
+          } catch (error) {
+            console.error("Error removing product from cart:", error);
+          }
+        } else {
+          // if there is no token, redirect to login
+          document.location.replace("/login");
+        }
+      });
+  });
 </script>

@@ -1,50 +1,57 @@
 ---
 import CartProduct from "../../components/CartProduct.astro";
 import Layout from "../../layouts/Layout.astro";
-import { routes, strapi } from "../../utils/constants";
+import { placeholders, routes, strapi } from "../../utils/constants";
 
-  let products = [];
-  let isEmpty = false;
-  let error = null;
-  // Function to fetch cart items
-  // Fetch the jwt from cookies
-  const token = Astro.cookies.get("jwt")?.value;
-  if (token) {
+let products = [];
+let isEmpty = false;
+let error = null;
+let totalPrice: number = 0;
+
+// Fetch the jwt from cookies
+const token = Astro.cookies.get("jwt")?.value;
+if (token) {
   try {
     // Fetch user cart from Strapi
-    const userCartResponse = await fetch(strapi.BASE_URL+ "/api/users/me?populate[cart][populate][products][populate]=image", {
-      method: "get",
-      headers: {
-        'Authorization': `Bearer ${token}`
+    // TODO: Migrate API & create dedicated endpoint in STRAPI
+    const userCartResponse = await fetch(
+      strapi.BASE_URL +
+        "/api/users/me?populate[cart][populate][products][populate]=image", // for getting product image in response
+      {
+        method: "get",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    });
+    );
 
-    if (!userCartResponse.ok) throw new Error('Failed to fetch cart');
+    if (!userCartResponse.ok) throw new Error("Failed to fetch cart");
 
     const userCartData = await userCartResponse.json();
     products = userCartData.cart.products.map((product: any) => {
-      const image = product.image?.[0].url
+      const image = product.image?.[0].url;
+      totalPrice += product.price ?? 0;
       return {
-      pID: product.pID,
-      title: product.title,
-      image: image ? strapi.BASE_URL + image : "https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg",  // Fallback in case image is missing
-      price: product.price
-    }})
+        pID: product.pID,
+        title: product.title,
+        image: image ? strapi.BASE_URL + image : placeholders.PRODUCT_IMAGE,
+        price: product.price,
+      };
+    });
 
     if (products.length === 0) {
-      products = []
-      isEmpty = true 
+      products = [];
+      isEmpty = true;
     }
   } catch (error: any) {
-    console.error('Error fetching cart products:', error);
-    products = []
-    isEmpty = true
-    error = error.message
+    console.error("Error fetching cart products:", error);
+    products = [];
+    isEmpty = true;
+    error = error.message;
   }
 } else {
   return Astro.redirect(routes.LOGIN);
 }
-
 ---
 
 <Layout title="Cart" navbar>
@@ -56,33 +63,34 @@ import { routes, strapi } from "../../utils/constants";
     <div class="mt-5 md:gap-6 lg:flex lg:items-start xl:gap-8">
       <div class="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl">
         <div class="space-y-6">
-          {isEmpty ? (
-            <p class="text-center text-gray-500 dark:text-gray-400">Your cart is empty.</p>
-          ) : error ? (
-            <p class="text-center text-red-500 dark:text-red-400">Error: {error}</p>
-          ) : (
-            <div class="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
-              <div class="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl">
-                <div class="space-y-6">
-                  {products.map((product: any) => (
-                    <CartProduct {...product} />
-                  ))}
+          {
+            isEmpty ? (
+              <p class="text-center text-gray-500 dark:text-gray-400">
+                Your cart is empty.
+              </p>
+            ) : error ? (
+              <p class="text-center text-red-500 dark:text-red-400">
+                Error: {error}
+              </p>
+            ) : (
+              <div class="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
+                <div class="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl">
+                  <div class="space-y-6">
+                    {products.map((product: any) => (
+                      <CartProduct {...product} />
+                    ))}
+                  </div>
                 </div>
-                {/* Include the "People also bought" section here if needed */}
               </div>
-      
-              {/* Order Summary */}
-              <div class="mx-auto mt-6 max-w-4xl flex-1 space-y-6 lg:mt-0 lg:w-full">
-                {/* ... Order summary content ... */}
-              </div>
-            </div>
-          )}
+            )
+          }
         </div>
       </div>
 
       <div class="mx-auto mt-6 max-w-4xl flex-1 space-y-6 lg:mt-0 lg:w-full">
         <div
-          class="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6">
+          class="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6"
+        >
           <p class="text-xl font-semibold text-gray-900 dark:text-white">
             Order summary
           </p>
@@ -90,64 +98,68 @@ import { routes, strapi } from "../../utils/constants";
           <div class="space-y-4">
             <div class="space-y-2">
               <dl class="flex items-center justify-between gap-4">
-                <dt class="text-base font-normal text-gray-500 dark:text-gray-400">
-                  Original price
+                <dt
+                  class="text-base font-normal text-gray-500 dark:text-gray-400"
+                >
+                  Total price
                 </dt>
                 <dd class="text-base font-medium text-gray-900 dark:text-white">
-                  $7,592.00
+                  $ {totalPrice}
                 </dd>
               </dl>
 
               <dl class="flex items-center justify-between gap-4">
-                <dt class="text-base font-normal text-gray-500 dark:text-gray-400">
-                  Savings
-                </dt>
-                <dd class="text-base font-medium text-green-600">-$299.00</dd>
-              </dl>
-
-              <dl class="flex items-center justify-between gap-4">
-                <dt class="text-base font-normal text-gray-500 dark:text-gray-400">
-                  Store Pickup
-                </dt>
-                <dd class="text-base font-medium text-gray-900 dark:text-white">
-                  $99
-                </dd>
-              </dl>
-
-              <dl class="flex items-center justify-between gap-4">
-                <dt class="text-base font-normal text-gray-500 dark:text-gray-400">
+                <dt
+                  class="text-base font-normal text-gray-500 dark:text-gray-400"
+                >
                   Tax
                 </dt>
                 <dd class="text-base font-medium text-gray-900 dark:text-white">
-                  $799
+                  $ {(totalPrice * 5) / 100}
                 </dd>
               </dl>
             </div>
 
-            <dl class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+            <dl
+              class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700"
+            >
               <dt class="text-base font-bold text-gray-900 dark:text-white">
-                Total
+                Grand Total
               </dt>
               <dd class="text-base font-bold text-gray-900 dark:text-white">
-                $8,191.00
+                $ {totalPrice + (totalPrice * 5) / 100}
               </dd>
             </dl>
           </div>
 
-          <a href="#"
-            class="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Proceed
-            to Checkout</a>
+          <a
+            href="#"
+            class="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+            >Proceed to Checkout</a
+          >
 
           <div class="flex items-center justify-center gap-2">
             <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
               or
             </span>
-            <a href={routes.PRODUCTS} title=""
-              class="inline-flex items-center gap-2 text-sm font-medium text-primary-700 underline hover:no-underline dark:text-primary-500">
+            <a
+              href={routes.PRODUCTS}
+              title=""
+              class="inline-flex items-center gap-2 text-sm font-medium text-primary-700 underline hover:no-underline dark:text-primary-500"
+            >
               Continue Shopping
-              <svg class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              <svg
+                class="h-5 w-5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
                   d="M19 12H5m14 0-4 4m4-4-4-4"></path>
               </svg>
             </a>

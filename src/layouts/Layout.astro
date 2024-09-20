@@ -20,6 +20,7 @@ const { title, navbar } = Astro.props;
     <title>{title}</title>
     <link rel="manifest" href="/manifest.json" />
     <script>
+      // Register Service Worker
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
@@ -36,54 +37,18 @@ const { title, navbar } = Astro.props;
         });
       }
     </script>
+    <!-- Flowbite Css -->
     <link
       href="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.css"
       rel="stylesheet"
     />
   </head>
   <body class="h-screen flex flex-col">
-    <script>
-      function showToast(type: "success" | "error", message: string) {
-        // Define the toast template based on the type (success, error, warning)
-        const toastTypes = {
-          success: `
-        <div id="toast-success" class="flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
-          <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
-            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
-            </svg>
-            <span class="sr-only">Check icon</span>
-          </div>
-          <div class="ms-3 text-sm font-normal">${message}</div>
-        </div>`,
-          error: `
-        <div id="toast-error" class="flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
-          <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg dark:bg-red-800 dark:text-red-200">
-            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/>
-            </svg>
-            <span class="sr-only">Error icon</span>
-          </div>
-          <div class="ms-3 text-sm font-normal">${message}</div>
-        </div>`,
-        };
-
-        // Create a new toast div and append it to the container
-        const toastContainer = document.getElementById("toast-container");
-        const toast = document.createElement("div");
-        toast.innerHTML = toastTypes[type];
-        toastContainer?.appendChild(toast);
-
-        // Remove the toast after 3 seconds
-        setTimeout(() => {
-          toast.remove();
-        }, 3000);
-      }
-    </script>
     {navbar && <Navbar />}
     <section class="bg-gray-50 dark:bg-gray-900 h-full overflow-y-auto">
       <slot />
     </section>
+    <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
   </body>
 </html>
@@ -92,42 +57,3 @@ const { title, navbar } = Astro.props;
   @tailwind components;
   @tailwind utilities;
 </style>
-
-<script>
-  function showToast(type: "success" | "error", message: string) {
-    // Define the toast template based on the type (success, error, warning)
-    const toastTypes = {
-      success: `
-        <div id="toast-success" class="flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
-          <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
-            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
-            </svg>
-            <span class="sr-only">Check icon</span>
-          </div>
-          <div class="ms-3 text-sm font-normal">${message}</div>
-        </div>`,
-      error: `
-        <div id="toast-error" class="flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
-          <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg dark:bg-red-800 dark:text-red-200">
-            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/>
-            </svg>
-            <span class="sr-only">Error icon</span>
-          </div>
-          <div class="ms-3 text-sm font-normal">${message}</div>
-        </div>`,
-    };
-
-    // Create a new toast div and append it to the container
-    const toastContainer = document.getElementById("toast-container");
-    const toast = document.createElement("div");
-    toast.innerHTML = toastTypes[type];
-    toastContainer?.appendChild(toast);
-
-    // Remove the toast after 3 seconds
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
-  }
-</script>
