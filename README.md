@@ -15,6 +15,6 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
-## Backend
+## Content Management System
 
-Refer [STRAPI CMS Backend](https://github.com/abdulsamadmj/strapi-bso-test) for more info on content types, APIs and Server Setup
+Refer [STRAPI CMS](https://github.com/abdulsamadmj/strapi-bso-test) for more info on content types, APIs and Server Setup
