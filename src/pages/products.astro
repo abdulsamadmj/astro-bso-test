@@ -7,10 +7,11 @@ let products: any[] = [];
 let fetchError = null;
 const productImage = placeholders.PRODUCT_IMAGE;
 const productsRoute = routes.PRODUCTS;
+const strapiUrl = strapi.BASE_URL;
 
 try {
   // Fetch products from Strapi API
-  const response = await fetch(strapi.BASE_URL + "/api/products?populate=*", {
+  const response = await fetch(strapiUrl + "/api/products?populate=*", {
     method: "get",
   });
   const res = await response.json();
@@ -22,7 +23,7 @@ try {
       return {
         pID: item.attributes.pID,
         title: item.attributes.title,
-        image: image ? strapi.BASE_URL + image : productImage, // Fallback in case image is missing
+        image: image ? strapiUrl + image : productImage, // Fallback in case image is missing
         price: item.attributes.price,
       };
     });
@@ -60,22 +61,17 @@ try {
   </div>
 </Layout>
 
-<script define:vars={{ products, productImage, productsRoute }}>
+<script define:vars={{ products, productImage, productsRoute, strapiUrl }}>
   // SSE connection
   const evtSource = new EventSource("/api/stream");
 
   evtSource.onmessage = async (event) => {
     const data = JSON.parse(event.data);
     const product = data.data.data.attributes;
-    console.log(product);
+
     switch (data.event) {
       case "product:create":
-        createProduct({
-          pID: product.pID,
-          title: product.title,
-          price: product.price,
-          image: product.image ?? productImage,
-        });
+        createProduct(product.pID);
         break;
       case "product:update":
         if (product.publishedAt) {
@@ -84,12 +80,7 @@ try {
               removeProduct(product.pID);
             }
           });
-          createProduct({
-            pID: product.pID,
-            title: product.title,
-            image: product.image ?? productImage,
-            price: product.price,
-          });
+          createProduct(product.pID);
         } else {
           removeProduct(product.pID);
         }
@@ -110,7 +101,16 @@ try {
     evtSource.close();
   };
 
-  function createProduct({ pID, title, price, image }) {
+  async function createProduct(pID) {
+    const response = await fetch(
+      strapiUrl + "/api/products/?filters[pID][$eq]=" + pID + "&populate=*",
+      {
+        method: "get",
+      }
+    );
+    const res = await response.json();
+    const fullProduct = res.data[0].attributes;
+    const image = fullProduct.image?.data?.[0]?.attributes?.url ?? productImage;
     const newDiv = document.createElement("div");
     newDiv.innerHTML = `<div
   id="${pID}"
@@ -120,8 +120,8 @@ try {
     <a href="${productsRoute + "/" + pID}">
       <img
         class="mx-auto h-full dark:hidden object-contain"
-        src="${image}"
-        alt="${title}"
+        src="${strapiUrl + image}"
+        alt="${fullProduct.title}"
       />
     </a>
   </div>
@@ -129,7 +129,7 @@ try {
     <a
       href="${productsRoute + "/" + pID}"
       class="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white"
-      ><p class="w-[75vw] sm:w-full truncate">${title}</p></a
+      ><p class="w-[75vw] sm:w-full truncate">${fullProduct.title}</p></a
     >
 
     <ul class="mt-2 flex items-center gap-4">
@@ -181,7 +181,7 @@ try {
       <p
         class="text-2xl font-extrabold leading-tight text-gray-900 dark:text-white"
       >
-        $ ${price ?? ""}
+        $ ${fullProduct.price ?? ""}
       </p>
 
       <button
