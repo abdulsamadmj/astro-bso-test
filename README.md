@@ -2,6 +2,14 @@
 
 Was created for machine test/assignment for BSO Real Estate Management Company Full Stack Developer Role.
 
+## Chrome Dev Tools Performance
+
+![alt text](/ss/lighthouse.png)
+
+Note: the decrease in performance is due to using full resolution image instead fo thumbnails
+
+![alt text](/ss/cache.png)
+
 ## 🧞 Commands
 
 All commands are run from the root of the project, from a terminal:
