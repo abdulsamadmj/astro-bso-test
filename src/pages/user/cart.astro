@@ -2,8 +2,10 @@
 import CartProduct from "../../components/CartProduct.astro";
 import Layout from "../../layouts/Layout.astro";
 import { placeholders, routes, strapi } from "../../utils/constants";
+import type { Product } from "../../utils/interfaces";
+import { getCartProducts } from "../api/cart/get";
 
-let products = [];
+let products: Product[] = [];
 let isEmpty = false;
 let error = null;
 let totalPrice: number = 0;
@@ -11,43 +13,22 @@ let totalPrice: number = 0;
 // Fetch the jwt from cookies
 const token = Astro.cookies.get("jwt")?.value;
 if (token) {
-  try {
-    // Fetch user cart from Strapi
-    // TODO: Migrate API & create dedicated endpoint in STRAPI
-    const userCartResponse = await fetch(
-      strapi.BASE_URL +
-        "/api/users/me?populate[cart][populate][products][populate]=image", // for getting product image in response
-      {
-        method: "get",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  const res = await getCartProducts(token);
+  error = res.error;
 
-    if (!userCartResponse.ok) throw new Error("Failed to fetch cart");
-
-    const userCartData = await userCartResponse.json();
-    products = userCartData.cart.products.map((product: any) => {
-      const image = product.image?.[0].url;
-      totalPrice += product.price ?? 0;
-      return {
-        pID: product.pID,
-        title: product.title,
-        image: image ? strapi.BASE_URL + image : placeholders.PRODUCT_IMAGE,
-        price: product.price,
-      };
-    });
-
-    if (products.length === 0) {
-      products = [];
-      isEmpty = true;
-    }
-  } catch (error: any) {
-    console.error("Error fetching cart products:", error);
+  products = res.products.map((product: any) => {
+    const image = product.image?.[0].url;
+    totalPrice += product.price ?? 0;
+    return {
+      pID: product.pID,
+      title: product.title,
+      image: image ? strapi.BASE_URL + image : placeholders.PRODUCT_IMAGE,
+      price: product.price,
+    };
+  });
+  if (products.length === 0) {
     products = [];
     isEmpty = true;
-    error = error.message;
   }
 } else {
   return Astro.redirect(routes.LOGIN);

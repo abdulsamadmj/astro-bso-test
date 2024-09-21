@@ -1,34 +1,20 @@
 ---
-import { routes, strapi } from "../utils/constants";
+import { routes } from "../utils/constants";
+import {getCartCount } from "../pages/api/cart/count"
 
 // Fetch the user from cookies
 const user = Astro.cookies.get("user") ?? null;
 const userObject = user?.json()
 // Fetch cart count if user is logged in
 let cartCount = 0;
-let fetchError = false;
+let fetchError: string | null = null;
 
 if (user && user?.value) {
     const token = Astro.cookies.get("jwt")?.value;
     if (token) {
-        try {
-            // TODO: migrate api, create custom API for cart count in strapi
-            const response = await fetch(strapi.BASE_URL + `/api/users/me?populate[cart][populate]=products`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const userData = await response.json();
-            cartCount = userData?.cart.products?.length || 0;
-        } catch (error) {
-            console.error("Failed to fetch cart count:", error);
-            fetchError = true;
-        }
+        const res = await getCartCount(token)
+        cartCount = res.count
+        fetchError = res.error
     }
 }
 
