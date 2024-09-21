@@ -6,7 +6,7 @@ Was created for machine test/assignment for BSO Real Estate Management Company F
 
 ![alt text](/ss/lighthouse.png)
 
-Note: the decrease in performance is due to using full resolution image instead fo thumbnails
+`Note: the decrease in performance is due to using full resolution image instead of thumbnails`
 
 ![alt text](/ss/cache.png)
 
