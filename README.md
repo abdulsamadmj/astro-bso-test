@@ -25,4 +25,4 @@ All commands are run from the root of the project, from a terminal:
 
 ## Content Management System
 
-Refer [STRAPI CMS](https://github.com/abdulsamadmj/strapi-bso-test) for more info on content types, APIs and Server Setup
+Refer [STRAPI CMS](https://github.com/abdulsamadmj/strapi-machine-test) for more info on content types, APIs and Server Setup
