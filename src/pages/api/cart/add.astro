@@ -10,6 +10,7 @@ if (Astro.request.method === "PUT") {
     // Make a request to the Strapi API to add the product to the cart
     const strapiRes = await fetch(strapi.BASE_URL + "/api/users/me/cart", {
       method: "PUT",
+      mode: "cors",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${userToken}`,
@@ -32,6 +33,5 @@ if (Astro.request.method === "PUT") {
       status: 500,
     });
   }
-};
-
+}
 ---

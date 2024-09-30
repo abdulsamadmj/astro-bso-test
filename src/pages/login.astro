@@ -26,6 +26,7 @@ if (Astro.request.method === "POST") {
       // Call the Strapi API for user authentication
       const response = await fetch(strapi.LOGIN_URL, {
         method: "POST",
+        mode: "cors",
         body: JSON.stringify({ identifier, password }),
         headers: { "Content-Type": "application/json" },
       });

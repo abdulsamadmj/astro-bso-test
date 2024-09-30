@@ -13,6 +13,7 @@ export const getProducts = async (): Promise<ProductsResponse> => {
     // Fetch products from Strapi API
     const response = await fetch(strapi.BASE_URL + "/api/products?populate=*", {
       method: "get",
+      mode: "cors",
     });
     const res = await response.json();
 

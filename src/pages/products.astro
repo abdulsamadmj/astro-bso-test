@@ -16,6 +16,7 @@ try {
   // TODO: Migrate API
   const response = await fetch(strapiUrl + "/api/products?populate=*", {
     method: "get",
+    mode: "cors",
   });
   const res = await response.json();
 
@@ -115,6 +116,7 @@ try {
       strapiUrl + "/api/products/?filters[pID][$eq]=" + pID + "&populate=*",
       {
         method: "get",
+        mode: "cors",
       }
     );
     const res = await response.json();

@@ -163,6 +163,7 @@ const token = Astro.cookies.get("jwt");
         try {
           response = await fetch("/api/cart/add", {
             method: "put",
+            mode: "cors",
             body: JSON.stringify(reqBody),
           });
 

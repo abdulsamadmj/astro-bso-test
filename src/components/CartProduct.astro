@@ -81,6 +81,7 @@ const token = Astro.cookies.get("jwt");
           try {
             const response = await fetch("/api/cart/remove?pID=" + pID, {
               method: "DELETE",
+              mode: "cors",
             });
 
             if (!response.ok) {

@@ -14,6 +14,7 @@ export const getCartCount = async (
       strapi.BASE_URL + "/api/users/me/cart-count",
       {
         method: "GET",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -18,6 +18,7 @@ if (Astro.request.method === "DELETE") {
       `${strapi.BASE_URL}/api/users/me/cart?pID=${pID}`,
       {
         method: "DELETE",
+        mode: "cors",
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
@@ -39,5 +40,5 @@ if (Astro.request.method === "DELETE") {
       status: 500,
     });
   }
-};
+}
 ---
